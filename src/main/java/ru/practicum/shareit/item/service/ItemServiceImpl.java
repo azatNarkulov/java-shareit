@@ -6,6 +6,8 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.user.dao.UserRepository;
 
 import java.util.List;
 
@@ -13,22 +15,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
+        checkUserExists(userId);
         return itemRepository.addItem(itemDto, userId);
     }
 
     @Override
-    public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
+    public ItemDto updateItem(Long itemId, ItemUpdateDto itemDto, Long userId) {
         checkUserExists(userId);
         checkOwner(itemId, userId);
-        return itemRepository.updateItem(itemId, userId, itemDto);
+        return itemRepository.updateItem(itemId, itemDto);
     }
 
     @Override
-    public ItemDto getItemById(Long itemId, Long userId) {
-        return itemRepository.getItemById(itemId, userId);
+    public ItemDto getItemById(Long itemId) {
+        return itemRepository.getItemById(itemId);
     }
 
     @Override
@@ -38,12 +42,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text, Long userId) {
-        return itemRepository.searchItems(text, userId);
+    public List<ItemDto> searchItems(String text) {
+        return itemRepository.searchItems(text);
     }
 
     private void checkUserExists(Long userId) {
-        if (!itemRepository.checkUserExistsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
     }

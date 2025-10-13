@@ -1,10 +1,11 @@
 package ru.practicum.shareit.item.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto addItem(
-            @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody ItemDto itemDto
     ) {
         return itemService.addItem(itemDto, userId);
     }
@@ -32,9 +33,9 @@ public class ItemController {
     public ItemDto updateItem(
             @PathVariable Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody ItemDto itemDto
+            @Valid @RequestBody ItemUpdateDto itemDto
     ) {
-        return itemService.updateItem(itemId, userId, itemDto);
+        return itemService.updateItem(itemId, itemDto, userId);
     }
 
     @GetMapping("/{itemId}")
@@ -43,7 +44,7 @@ public class ItemController {
             @PathVariable Long itemId,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
-        return itemService.getItemById(itemId, userId);
+        return itemService.getItemById(itemId);
     }
 
     @GetMapping
@@ -58,6 +59,6 @@ public class ItemController {
             @RequestParam String text,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
-        return itemService.searchItems(text, userId);
+        return itemService.searchItems(text);
     }
 }

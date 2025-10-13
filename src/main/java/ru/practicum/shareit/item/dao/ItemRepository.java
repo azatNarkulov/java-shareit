@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dao;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.HashMap;
@@ -20,19 +21,19 @@ public class ItemRepository {
         return itemDto;
     }
 
-    public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
+    public ItemDto updateItem(Long itemId, ItemUpdateDto itemDto) {
         Item item = items.get(itemId);
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());
         }
-        if (item.getDescription() != null) {
+        if (itemDto.getDescription() != null) {
             item.setDescription(itemDto.getDescription());
         }
-        item.setAvailable(itemDto.isAvailable());
-        return itemDto;
+        item.setAvailable(itemDto.getAvailable());
+        return ItemMapper.toItemDto(item);
     }
 
-    public ItemDto getItemById(Long itemId, Long userId) {
+    public ItemDto getItemById(Long itemId) {
         return ItemMapper.toItemDto(items.get(itemId));
     }
 
@@ -43,17 +44,18 @@ public class ItemRepository {
                 .toList();
     }
 
-    public List<ItemDto> searchItems(String text, Long userId) {
+    public List<ItemDto> searchItems(String text) {
+        if (text == null || text.isBlank()) {
+            return List.of();
+        }
+
+        String searchText = text.toLowerCase();
         return items.values().stream()
-                .filter(item -> item.isAvailable())
-                .filter(item -> item.getDescription().toLowerCase().contains(text))
+                .filter(item -> item.getAvailable() != null && item.getAvailable())
+                .filter(item -> (item.getName() != null && item.getName().toLowerCase().contains(searchText)) ||
+                        (item.getDescription() != null && item.getDescription().toLowerCase().contains(searchText)))
                 .map(ItemMapper::toItemDto)
                 .toList();
-    }
-
-    public boolean checkUserExistsById(Long userId) {
-        return items.values().stream()
-                .anyMatch(item -> item.getOwner().equals(userId));
     }
 
     public boolean checkOwner(Long itemId, Long userId) {
