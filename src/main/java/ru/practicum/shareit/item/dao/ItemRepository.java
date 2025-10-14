@@ -16,7 +16,8 @@ public class ItemRepository {
 
     public ItemDto addItem(ItemDto itemDto, Long userId) {
         itemDto.setId(counterId++);
-        Item item = ItemMapper.toItem(itemDto, userId);
+        Item item = ItemMapper.toEntity(itemDto);
+        item.setOwner(userId);
         items.put(item.getId(), item);
         return itemDto;
     }
@@ -30,18 +31,18 @@ public class ItemRepository {
             item.setDescription(itemDto.getDescription());
         }
         item.setAvailable(itemDto.getAvailable());
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toDto(item);
     }
 
     public ItemDto getItemById(Long itemId) {
-        return ItemMapper.toItemDto(items.get(itemId));
+        return ItemMapper.toDto(items.get(itemId));
     }
 
     public List<ItemDto> getItemsByUserId(Long userId) {
-        return items.values().stream()
+        return ItemMapper.toDto(items.values().stream()
                 .filter(item -> item.getOwner().equals(userId))
-                .map(ItemMapper::toItemDto)
-                .toList();
+                .toList()
+        );
     }
 
     public List<ItemDto> searchItems(String text) {
@@ -50,12 +51,13 @@ public class ItemRepository {
         }
 
         String searchText = text.toLowerCase();
-        return items.values().stream()
+        return ItemMapper.toDto(
+                items.values().stream()
                 .filter(item -> item.getAvailable() != null && item.getAvailable())
                 .filter(item -> (item.getName() != null && item.getName().toLowerCase().contains(searchText)) ||
                         (item.getDescription() != null && item.getDescription().toLowerCase().contains(searchText)))
-                .map(ItemMapper::toItemDto)
-                .toList();
+                .toList()
+        );
     }
 
     public boolean checkOwner(Long itemId, Long userId) {

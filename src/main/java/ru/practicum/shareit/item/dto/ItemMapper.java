@@ -2,9 +2,11 @@ package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
+
 public class ItemMapper {
 
-    public static ItemDto toItemDto(Item item) {
+    public static ItemDto toDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -14,13 +16,18 @@ public class ItemMapper {
         );
     }
 
-    public static Item toItem(ItemDto itemDto, Long userId) {
+    public static List<ItemDto> toDto(List<Item> items) {
+        return items.stream()
+                .map(ItemMapper::toDto)
+                .toList();
+    }
+
+    public static Item toEntity(ItemDto itemDto) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                userId,
                 itemDto.getRequest()
         );
     }

@@ -15,18 +15,16 @@ public class UserRepository {
     private long counterId = 1;
 
     public UserDto getUserById(Long id) {
-        return UserMapper.toUserDto(users.get(id));
+        return UserMapper.toDto(users.get(id));
     }
 
     public List<UserDto> getUsers() {
-        return users.values().stream()
-                .map(UserMapper::toUserDto)
-                .toList();
+        return UserMapper.toDto(users.values());
     }
 
     public UserDto addUser(UserDto userDto) {
         userDto.setId(counterId++);
-        users.put(userDto.getId(), UserMapper.toUser(userDto));
+        users.put(userDto.getId(), UserMapper.toEntity(userDto));
         return userDto;
     }
 
@@ -38,7 +36,7 @@ public class UserRepository {
         if (newUserDto.getEmail() != null) {
             user.setEmail(newUserDto.getEmail());
         }
-        return UserMapper.toUserDto(user);
+        return UserMapper.toDto(user);
     }
 
     public void deleteUser(Long id) {
