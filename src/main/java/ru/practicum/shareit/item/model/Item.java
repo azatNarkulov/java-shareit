@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,7 +16,6 @@ public class Item {
     private Boolean available;
     private Long owner; // id владельца
     private Long request;
-
 
     public Item(Long id, String name, String description, Boolean available, Long request) {
         this.id = id;
