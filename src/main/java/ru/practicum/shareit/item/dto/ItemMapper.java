@@ -4,7 +4,7 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
-public class ItemMapper {
+public final class ItemMapper {
 
     public static ItemDto toDto(Item item) {
         return new ItemDto(

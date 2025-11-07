@@ -2,15 +2,15 @@ package ru.practicum.shareit.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 /**
  * TODO Sprint add-controllers.
  */
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemDto {
     private Long id;
 
@@ -22,5 +22,5 @@ public class ItemDto {
 
     @NotNull
     private Boolean available;
-    private Long request;
+    private Long request; // мб нужно убрать
 }
