@@ -4,29 +4,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.booking.model.LastNextBooking;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Data
 @RequiredArgsConstructor
-public class ItemDto {
+public class ItemDtoForOwner {
     private Long id;
-
-    @NotBlank
     private String name;
-
-    @NotBlank
     private String description;
-
-    @NotNull
     private Boolean available;
-    private Long request; // мб нужно убрать
+    private LastNextBooking lastBooking;
+    private LastNextBooking nextBooking;
     private List<CommentDto> comments;
 
-    public ItemDto(Long id, String name, String description, Boolean available, Long aLong) {
+    public ItemDtoForOwner(Long id, String name, String description, Boolean available) {
     }
 }

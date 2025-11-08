@@ -22,6 +22,15 @@ public final class ItemMapper {
                 .toList();
     }
 
+    public static ItemDtoForOwner toDtoForOwner(Item item) {
+        return new ItemDtoForOwner(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable()
+        );
+    }
+
     public static Item toEntity(ItemDto itemDto) {
         return new Item(
                 itemDto.getId(),

@@ -4,7 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dao.CreateCommentRequest;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -47,10 +50,16 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
+//    @GetMapping
+//    @ResponseStatus(HttpStatus.OK)
+//    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+//        return itemService.getItemsByUserId(userId);
+//    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItemsByUserId(userId);
+    public List<ItemDtoForOwner> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+        return itemService.getItemsByOwner(ownerId);
     }
 
     @GetMapping("/search")
@@ -60,5 +69,14 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         return itemService.searchItems(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto addComment(
+            @PathVariable Long itemId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody CreateCommentRequest request) {
+        return itemService.addComment(userId, itemId, request);
     }
 }
