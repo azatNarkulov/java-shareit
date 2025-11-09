@@ -35,12 +35,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        if (userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         Item item = ItemMapper.toEntity(itemDto);
-        item.setOwner(userId);
+        item.setOwner(owner);
         itemRepository.save(item);
         return ItemMapper.toDto(item);
     }
