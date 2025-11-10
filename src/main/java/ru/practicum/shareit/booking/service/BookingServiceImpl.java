@@ -113,17 +113,28 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
 
-        bookings = switch (state.toUpperCase()) {
-            case "ALL" -> bookingRepository.findByBookerIdOrderByStartDesc(userId);
-            case "CURRENT" ->
-                    bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
-            case "PAST" -> bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
-            case "FUTURE" -> bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, now);
-            case "WAITING" -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
-            case "REJECTED" ->
-                    bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
-            default -> throw new ValidationException("Неизвестная операция");
-        };
+        switch (state.toUpperCase()) {
+            case "ALL":
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+                break;
+            case "CURRENT":
+                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+                break;
+            case "PAST":
+                bookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
+                break;
+            case "FUTURE":
+                bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, now);
+                break;
+            case "WAITING":
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                break;
+            case "REJECTED":
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                break;
+            default:
+                throw new ValidationException("Неизвестная операция");
+        }
 
         return bookings.stream()
                 .map(BookingMapper::toDto)
@@ -137,17 +148,28 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
 
-        bookings = switch (state.toUpperCase()) {
-            case "ALL" -> bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
-            case "CURRENT" -> bookingRepository.findCurrentlyByItemOwnerIdOrderByStartDesc(ownerId, now);
-            case "PAST" -> bookingRepository.findPastByItemOwnerIdOrderByStartDesc(ownerId, now);
-            case "FUTURE" -> bookingRepository.findFutureByItemOwnerIdOrderByStartDesc(ownerId, now);
-            case "WAITING" ->
-                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
-            case "REJECTED" ->
-                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
-            default -> throw new ValidationException("Неизвестная операция");
-        };
+        switch (state.toUpperCase()) {
+            case "ALL":
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
+                break;
+            case "CURRENT":
+                bookings = bookingRepository.findCurrentlyByItemOwnerIdOrderByStartDesc(ownerId, now);
+                break;
+            case "PAST":
+                bookings = bookingRepository.findPastByItemOwnerIdOrderByStartDesc(ownerId, now);
+                break;
+            case "FUTURE":
+                bookings = bookingRepository.findFutureByItemOwnerIdOrderByStartDesc(ownerId, now);
+                break;
+            case "WAITING":
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+                break;
+            case "REJECTED":
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+                break;
+            default:
+                throw new ValidationException("Неизвестная операция");
+        }
 
         return bookings.stream()
                 .map(BookingMapper::toDto)
