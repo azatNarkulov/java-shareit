@@ -48,11 +48,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto updateItem(Long itemId, ItemUpdateDto itemDto, Long userId) {
-//        Item item = findAndCheckItem(itemId);
 
         Item item = itemRepository.findById(itemId)
                         .orElseThrow(() -> new NotFoundException("Предмет не найден"));
-//        checkUserExists(userId); // проверяем существование пользователя
         checkOwner(item, userId); // проверяем, что пользователь – владелец вещи
 
         if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
@@ -74,8 +72,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findByIdWithComments(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден"));
 
-//        List<Comment> comments = commentRepository.findAllByItemId(itemId);
-//        item.setComments(comments);
         return ItemMapper.toDto(item);
     }
 
@@ -113,10 +109,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
-//        boolean hasBooked = commentRepository.existsByBookerAndItemAndEndBefore(
-//                userId, itemId, LocalDateTime.now()
-//        );
-
         boolean hasBooked = bookingRepository.existsByBookerIdAndItemIdAndEndBeforeAndStatus(
                 userId, itemId, LocalDateTime.now(), BookingStatus.APPROVED
         );
@@ -150,14 +142,6 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotOwnerException("Пользователь не является владельцем предмета");
         }
-    }
-
-    private Item findAndCheckItem(Long itemId) {
-        Optional<Item> itemOpt = itemRepository.findById(itemId);
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("Предмет не найден");
-        }
-        return itemOpt.get();
     }
 
     private ItemDtoForOwner mapToItemDtoForOwner(Item item) {

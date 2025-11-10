@@ -45,16 +45,9 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public ItemDto getItemById(
             @PathVariable Long itemId
-//            @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         return itemService.getItemById(itemId);
     }
-
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-//        return itemService.getItemsByUserId(userId);
-//    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -65,8 +58,7 @@ public class ItemController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> searchItems(
-            @RequestParam String text,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestParam String text
     ) {
         return itemService.searchItems(text);
     }

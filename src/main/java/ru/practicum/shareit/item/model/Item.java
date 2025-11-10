@@ -1,14 +1,10 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -29,11 +25,9 @@ public class Item {
     private Long id;
 
     @Column
-//    @NotBlank
     private String name;
 
     @Column
-//    @NotNull
     private String description;
 
     @Column(name = "is_available")
@@ -47,12 +41,9 @@ public class Item {
     private Long request;
 
     @OneToMany(fetch = FetchType.LAZY)
-//    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<Booking> bookings = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "item")
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-//    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     public Item(Long id, String name, String description, Boolean available, Long request) {

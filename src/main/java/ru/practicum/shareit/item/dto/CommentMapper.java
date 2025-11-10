@@ -1,9 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
-
-import java.util.List;
 
 public final class CommentMapper {
     public static CommentDto toDto(Comment comment) {
@@ -11,7 +8,7 @@ public final class CommentMapper {
             return null;
         }
 
-        String authorName = "Unknown"; // мб удалить
+        String authorName = "Unknown";
 
         if (comment.getAuthor() != null) {
             authorName = comment.getAuthor().getName();
