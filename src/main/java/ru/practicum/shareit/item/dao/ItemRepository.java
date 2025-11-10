@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     boolean existsById(Long id);
+
     List<Item> findByOwnerId(Long ownerId);
 
     @Query("SELECT i FROM Item i " +
