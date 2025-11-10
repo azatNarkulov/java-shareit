@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(Long itemId, ItemUpdateDto itemDto, Long userId) {
 
         Item item = itemRepository.findById(itemId)
-                        .orElseThrow(() -> new NotFoundException("Предмет не найден"));
+                .orElseThrow(() -> new NotFoundException("Предмет не найден"));
         checkOwner(item, userId); // проверяем, что пользователь – владелец вещи
 
         if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
@@ -101,6 +103,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Long userId, Long itemId, CreateCommentRequest request) {
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));

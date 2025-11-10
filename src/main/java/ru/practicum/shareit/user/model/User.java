@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
  * TODO Sprint add-controllers.
  */
 
+@Entity
+@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
