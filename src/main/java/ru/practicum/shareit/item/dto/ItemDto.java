@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.model.LastNextBooking;
 import ru.practicum.shareit.item.model.Comment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +31,12 @@ public class ItemDto {
 
     @NotNull
     private Boolean available;
-    private Long request; // мб нужно убрать
-    private List<Comment> comments;
+    private Long request;
+    private List<CommentDto> comments = new ArrayList<>();
     private LastNextBooking lastBooking;
     private LastNextBooking nextBooking;
 
-    public ItemDto(Long id, String name, String description, Boolean available, Long request, List<Comment> comments) {
+    public ItemDto(Long id, String name, String description, Boolean available, Long request, List<CommentDto> comments) {
         this.id = id;
         this.name = name;
         this.description = description;

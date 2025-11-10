@@ -71,9 +71,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findByIdWithComments(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден"));
-        item.getComments();
+
+//        List<Comment> comments = commentRepository.findAllByItemId(itemId);
+//        item.setComments(comments);
         return ItemMapper.toDto(item);
     }
 
@@ -111,8 +113,12 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
-        boolean hasBooked = commentRepository.existsByBookerAndItemAndEndBefore(
-                userId, itemId, LocalDateTime.now()
+//        boolean hasBooked = commentRepository.existsByBookerAndItemAndEndBefore(
+//                userId, itemId, LocalDateTime.now()
+//        );
+
+        boolean hasBooked = bookingRepository.existsByBookerIdAndItemIdAndEndBeforeAndStatus(
+                userId, itemId, LocalDateTime.now(), BookingStatus.APPROVED
         );
 
         if (!hasBooked) {
@@ -127,6 +133,9 @@ public class ItemServiceImpl implements ItemService {
         );
 
         Comment savedComment = commentRepository.save(comment);
+
+        item.getComments().add(comment);
+        itemRepository.save(item);
 
         return CommentMapper.toDto(savedComment);
     }
