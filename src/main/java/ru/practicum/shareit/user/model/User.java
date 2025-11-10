@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * TODO Sprint add-controllers.
@@ -12,6 +13,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -20,11 +22,11 @@ public class User {
     private Long id;
 
     @Column
-    @NotBlank
+//    @NotBlank
     private String name;
 
     @Column(unique = true)
-    @NotBlank
-    @Email
+//    @NotBlank
+//    @Email
     private String email;
 }

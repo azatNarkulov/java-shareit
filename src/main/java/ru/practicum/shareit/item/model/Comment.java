@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "comments")
+@NoArgsConstructor
 public class Comment {
 
     @Id
@@ -29,6 +31,10 @@ public class Comment {
     @Column(name = "created_date")
     private LocalDateTime created;
 
-    public Comment(String text, Long itemId, Long authorId, LocalDateTime now) {
+    public Comment(String text, Item item, User author, LocalDateTime now) {
+        this.text = text;
+        this.item = item;
+        this.author = author;
+        this.created = now;
     }
 }

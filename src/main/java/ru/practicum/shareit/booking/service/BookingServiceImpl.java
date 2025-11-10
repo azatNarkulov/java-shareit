@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -39,21 +40,27 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь недоступна");
         }
 
-        if (item.getOwner().equals(userId)) {
-            throw new ValidationException("Пользователь не может забронировать свою же вещь");
+        if (item.getOwner().getId().equals(userId)) {
+            throw new NotFoundException("Not found");
         }
 
-        if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart()) ||
-                bookingRequestDto.getEnd().isEqual(bookingRequestDto.getStart())) {
+        LocalDateTime start = bookingRequestDto.getStart();
+        LocalDateTime end = bookingRequestDto.getEnd();
+
+        if (start == null || end == null) {
+            throw new ValidationException("Отсутствуют даты начала и окончания");
+        }
+
+        if (end.isBefore(start) || end.isEqual(start)) {
             throw new ValidationException("Конец бронирования должен быть после времени старта");
         }
 
-        if (bookingRequestDto.getStart().isBefore(LocalDateTime.now())) {
+        if (start.isBefore(LocalDateTime.now())) {
             throw new ValidationException("Начало бронирования должно быть в будущем");
         }
 
         List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
-                item.getId(), bookingRequestDto.getStart(), bookingRequestDto.getEnd());
+                item.getId(), start, end);
 
         if (!overlappingBookings.isEmpty()) {
             throw new ValidationException("Вещь уже забронирована");
@@ -67,11 +74,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDto updateBookingStatus(Long bookingId, Long ownerId, Boolean approved) {
+    public BookingResponseDto updateBookingStatus(Long bookingId, Long ownerId, boolean approved) {
         Booking booking = findBookingById(bookingId);
 
-        if (!booking.getItem().getOwner().equals(ownerId)) {
-            throw new NotFoundException("Только владелец вещи может изменить её статус");
+        if (!booking.getItem().getOwner().getId().equals(ownerId)) {
+            throw new NotOwnerException("Только владелец вещи может изменить её статус");
         }
 
         if (booking.getStatus() != BookingStatus.WAITING) {
@@ -90,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = findBookingById(bookingId);
 
         boolean isBooker = booking.getBooker().getId().equals(userId);
-        boolean isOwner = booking.getItem().getOwner().equals(userId);
+        boolean isOwner = booking.getItem().getOwner().getId().equals(userId);
 
         if (!isBooker && !isOwner) {
             throw new NotFoundException("Нет прав на просмотр бронирования"); // дописать здесь
@@ -126,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             default:
-                throw new NotFoundException("Неизвестная операция");
+                throw new ValidationException("Неизвестная операция");
         }
 
         return bookings.stream()
@@ -161,7 +168,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                 break;
             default:
-                throw new NotFoundException("Неизвестная операция");
+                throw new ValidationException("Неизвестная операция");
         }
 
         return bookings.stream()

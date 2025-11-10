@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -18,17 +20,18 @@ import java.util.List;
 @EqualsAndHashCode(of = {"id"})
 @Entity
 @Table(name = "items")
+@NoArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    @NotBlank
+//    @NotBlank
     private String name;
 
     @Column
-    @NotNull
+//    @NotNull
     private String description;
 
     @Column(name = "is_available")
@@ -43,6 +46,9 @@ public class Item {
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<Booking> bookings;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     public Item(Long id, String name, String description, Boolean available, Long request) {
         this.id = id;

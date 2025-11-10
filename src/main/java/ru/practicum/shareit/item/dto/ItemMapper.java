@@ -12,7 +12,8 @@ public final class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getRequest() != null ? item.getRequest() : null
+                item.getRequest() != null ? item.getRequest() : null,
+                item.getComments()
         );
     }
 

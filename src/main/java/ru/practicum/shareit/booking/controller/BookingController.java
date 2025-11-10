@@ -33,12 +33,12 @@ public class BookingController {
         return bookingService.createBooking(bookingRequestDto, userId); // добавление бронирования
     }
 
-    @PatchMapping("{bookingId}")
+    @PatchMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingResponseDto updateBookingStatus(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long bookingId,
-            @RequestParam Boolean approved
+            @RequestParam boolean approved
     ) {
         return bookingService.updateBookingStatus(bookingId, userId, approved); // подтверждение/отклонение запроса
     }

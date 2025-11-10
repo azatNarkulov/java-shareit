@@ -20,6 +20,7 @@ import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,25 +48,32 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto updateItem(Long itemId, ItemUpdateDto itemDto, Long userId) {
-        Item item = findAndCheckItem(itemId);
+//        Item item = findAndCheckItem(itemId);
 
-        checkUserExists(userId); // проверяем существование пользователя
+        Item item = itemRepository.findById(itemId)
+                        .orElseThrow(() -> new NotFoundException("Предмет не найден"));
+//        checkUserExists(userId); // проверяем существование пользователя
         checkOwner(item, userId); // проверяем, что пользователь – владелец вещи
 
-        if (itemDto.getName() != null) {
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             item.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null) {
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
             item.setDescription(itemDto.getDescription());
         }
-        item.setAvailable(itemDto.getAvailable());
-        return ItemMapper.toDto(item);
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+
+        Item updatedItem = itemRepository.save(item);
+        return ItemMapper.toDto(updatedItem);
     }
 
     @Override
     public ItemDto getItemById(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден"));
+        item.getComments();
         return ItemMapper.toDto(item);
     }
 
@@ -77,6 +85,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItems(String text) {
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
         return ItemMapper.toDto(itemRepository.search(text));
     }
 
@@ -110,8 +121,8 @@ public class ItemServiceImpl implements ItemService {
 
         Comment comment = new Comment(
                 request.getText(),
-                item.getId(),
-                author.getId(),
+                item,
+                author,
                 LocalDateTime.now()
         );
 
@@ -127,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkOwner(Item item, Long userId) {
-        if (!item.getOwner().equals(userId)) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new NotOwnerException("Пользователь не является владельцем предмета");
         }
     }

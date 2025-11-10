@@ -1,8 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.model.LastNextBooking;
 
@@ -10,6 +9,7 @@ import java.util.List;
 
 @Data
 @RequiredArgsConstructor
+//@NoArgsConstructor
 public class ItemDtoForOwner {
     private Long id;
     private String name;

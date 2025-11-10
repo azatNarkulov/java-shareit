@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -22,6 +23,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto addUser(UserDto userDto) {
+        if (userDto.getEmail() == null || userDto.getEmail().isBlank() || !userDto.getEmail().contains("@")) {
+            throw new ValidationException("Email пустой или неверного формата");
+        }
+
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
+            throw new ValidationException("Имя пользователя пустое");
+        }
+
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new EmailAlreadyExistsException("Email пользователя уже существует");
         }
@@ -37,14 +46,21 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        if (newUserDto.getEmail() != null && !newUserDto.getEmail().equals(existingUser.getEmail())) {
+        if (newUserDto.getEmail() != null &&
+                !newUserDto.getEmail().isBlank() &&
+                !newUserDto.getEmail().equals(existingUser.getEmail())) {
+
+            if (!newUserDto.getEmail().contains("@")) {
+                throw new ValidationException("Неверный формат email");
+            }
+
             if (userRepository.existsByEmail(newUserDto.getEmail())) {
                 throw new EmailAlreadyExistsException("Email уже существует");
             }
             existingUser.setEmail(newUserDto.getEmail());
         }
 
-        if (newUserDto.getName() != null) {
+        if (newUserDto.getName() != null && !newUserDto.getName().isBlank()) {
             existingUser.setName(newUserDto.getName());
         }
 
