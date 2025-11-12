@@ -1,11 +1,12 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.user.User;
 
 import java.util.ArrayList;
 import java.util.List;

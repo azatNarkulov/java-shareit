@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dao;
+package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,16 +23,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsByBookerIdAndItemIdAndEndBeforeAndStatus(Long bookerId, Long itemId, LocalDateTime end, BookingStatus status);
 
-    @Query("SELECT b FROM Booking b " +
-            "JOIN b.item i WHERE i.owner.id = :ownerId " +
-            "ORDER BY b.start DESC")
     List<Booking> findByItemOwnerIdOrderByStartDesc(@Param("ownerId") Long ownerId); // GET /owner state=ALL
 
-    @Query("SELECT b FROM Booking b " +
-            "JOIN b.item i " +
-            "WHERE i.owner.id = :ownerId " +
-            "AND b.status = :status " +
-            "ORDER by b.start DESC")
     List<Booking> findByItemOwnerIdAndStatusOrderByStartDesc(
             @Param("ownerId") Long ownerId, @Param("status") BookingStatus status); // GET /owner state=WAITING/REJECTED
 
@@ -45,20 +37,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findCurrentlyByItemOwnerIdOrderByStartDesc(
             @Param("ownerId") Long ownerId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT b FROM Booking b " +
-            "JOIN b.item i " +
-            "WHERE i.owner.id = :ownerId " +
-            "AND b.end < :now " +
-            "ORDER BY b.start DESC")
-    List<Booking> findPastByItemOwnerIdOrderByStartDesc(
+    List<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(
             @Param("ownerId") Long ownerId, @Param("now") LocalDateTime now); // GET /owner state=PAST
 
-    @Query("SELECT b FROM Booking b " +
-            "JOIN b.item i " +
-            "WHERE i.owner.id = :ownerId " +
-            "AND b.start > :now " +
-            "ORDER BY b.start DESC")
-    List<Booking> findFutureByItemOwnerIdOrderByStartDesc(
+    List<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(
             @Param("ownerId") Long ownerId, @Param("now") LocalDateTime now); // GET /owner state=FUTURE
 
     @Query("SELECT b FROM Booking b " +

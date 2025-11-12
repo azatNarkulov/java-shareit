@@ -3,8 +3,8 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dao.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,10 +12,10 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dao.ItemRepository;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dao.UserRepository;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,37 +27,27 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto, Long userId) {
+        Booking booking = bookingMapper.toEntity(bookingRequestDto);
+
         User booker = findUserById(userId);
 
-        Item item = itemRepository.findById(bookingRequestDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        Item item = findItemById(bookingRequestDto.getItemId());
 
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна");
         }
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Not found");
+            throw new ValidationException("Пользователь не является владельцем вещи");
         }
 
         LocalDateTime start = bookingRequestDto.getStart();
         LocalDateTime end = bookingRequestDto.getEnd();
-
-        if (start == null || end == null) {
-            throw new ValidationException("Отсутствуют даты начала и окончания");
-        }
-
-        if (end.isBefore(start) || end.isEqual(start)) {
-            throw new ValidationException("Конец бронирования должен быть после времени старта");
-        }
-
-        if (start.isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Начало бронирования должно быть в будущем");
-        }
 
         List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
                 item.getId(), start, end);
@@ -66,10 +56,10 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь уже забронирована");
         }
 
-        Booking booking = BookingMapper.toEntity(bookingRequestDto, item, booker);
-        Booking savedBooking = bookingRepository.save(booking);
+        booking.setItem(item);
+        booking.setBooker(booker);
 
-        return BookingMapper.toDto(savedBooking);
+        return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -87,9 +77,7 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
 
-        Booking updatedBooking = bookingRepository.save(booking);
-
-        return BookingMapper.toDto(updatedBooking);
+        return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -103,76 +91,76 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Нет прав на просмотр бронирования");
         }
 
-        return BookingMapper.toDto(booking);
+        return bookingMapper.toDto(booking);
     }
 
     @Override
-    public List<BookingResponseDto> getUserBookings(Long userId, String state) {
+    public List<BookingResponseDto> getUserBookings(Long userId, StateStatus state) {
         findUserById(userId);
 
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
 
-        switch (state.toUpperCase()) {
-            case "ALL":
+        switch (state) {
+            case ALL:
                 bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
                 break;
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, now);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             default:
-                throw new ValidationException("Неизвестная операция");
+                throw new ValidationException("Такой операции не существует");
         }
 
         return bookings.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .toList();
     }
 
     @Override
-    public List<BookingResponseDto> getOwnerBookings(Long ownerId, String state) {
+    public List<BookingResponseDto> getOwnerBookings(Long ownerId, StateStatus state) {
         findUserById(ownerId);
 
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
 
-        switch (state.toUpperCase()) {
-            case "ALL":
+        switch (state) {
+            case ALL:
                 bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findCurrentlyByItemOwnerIdOrderByStartDesc(ownerId, now);
                 break;
-            case "PAST":
-                bookings = bookingRepository.findPastByItemOwnerIdOrderByStartDesc(ownerId, now);
+            case PAST:
+                bookings = bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
                 break;
-            case "FUTURE":
-                bookings = bookingRepository.findFutureByItemOwnerIdOrderByStartDesc(ownerId, now);
+            case FUTURE:
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                 break;
             default:
-                throw new ValidationException("Неизвестная операция");
+                throw new ValidationException("Такой операции не существует");
         }
 
         return bookings.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .toList();
     }
 
@@ -184,5 +172,10 @@ public class BookingServiceImpl implements BookingService {
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    }
+
+    private Item findItemById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 }
