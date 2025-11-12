@@ -1,7 +1,8 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.request;
 
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
  */
 
 @Data
+@NoArgsConstructor
 public class ItemRequest {
     private Long id;
     private String description;

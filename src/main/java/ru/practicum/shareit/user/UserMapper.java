@@ -1,23 +1,25 @@
-package ru.practicum.shareit.user.dto;
+package ru.practicum.shareit.user;
 
-import ru.practicum.shareit.user.model.User;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Collection;
 import java.util.List;
 
+@Component
 public class UserMapper {
 
-    public static UserDto toDto(User user) {
+    public UserDto toDto(User user) {
         return new UserDto(user.getId(), user.getName(), user.getEmail());
     }
 
-    public static List<UserDto> toDto(Collection<User> users) {
+    public List<UserDto> toDto(Collection<User> users) {
         return users.stream()
-                .map(UserMapper::toDto)
+                .map(this::toDto)
                 .toList();
     }
 
-    public static User toEntity(UserDto userDto) {
+    public User toEntity(UserDto userDto) {
         return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
     }
 }
