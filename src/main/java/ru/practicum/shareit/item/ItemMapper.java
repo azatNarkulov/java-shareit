@@ -1,21 +1,17 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemFullResponseDto;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ItemMapper {
     private final CommentMapper commentMapper;
-
-    @Autowired
-    public ItemMapper(CommentMapper commentMapper) {
-        this.commentMapper = commentMapper;
-    }
 
     public ItemDto toDto(Item item) {
         return new ItemDto(
@@ -36,8 +32,8 @@ public class ItemMapper {
                 .toList();
     }
 
-    public ItemForOwnerDto toDtoForOwner(Item item) {
-        return new ItemForOwnerDto(
+    public ItemFullResponseDto toDtoForOwner(Item item) {
+        return new ItemFullResponseDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),

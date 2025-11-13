@@ -16,7 +16,7 @@ import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.comment.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemFullResponseDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -90,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemForOwnerDto> getItemsByOwner(Long ownerId) {
+    public List<ItemFullResponseDto> getItemsByOwner(Long ownerId) {
         checkUserExists(ownerId);
 
         List<Item> items = itemRepository.findByOwnerId(ownerId);
@@ -142,8 +142,8 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private ItemForOwnerDto mapToItemDtoForOwner(Item item) {
-        ItemForOwnerDto itemDtoForOwner = itemMapper.toDtoForOwner(item);
+    private ItemFullResponseDto mapToItemDtoForOwner(Item item) {
+        ItemFullResponseDto itemDtoForOwner = itemMapper.toDtoForOwner(item);
 
         List<Booking> bookings = bookingRepository.findByItemIdAndStatusInOrderByStartAsc(
                 item.getId(), List.of(BookingStatus.APPROVED)
